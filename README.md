@@ -4,18 +4,11 @@ This project is related to the third assessment from Udacity's React Nanodegree 
 
 ## Getting Start
 
-### Back-End
-
-This project expects to have a `api-server` runnig. Since the source code was provided to develop the application,
-I have assumed that the server should be running locally. You can clone the repository in [here](https://github.com/udacity/reactnd-project-readable-starter).
-
-All the REST API endpoints can be found in a README.md inside the repository.
-
 ### Requisites
 
 This project was built using `yarn`, so it is advised to use it instead of yarn.
 
-* Npm is distributes with Node.js, so just download and install [Node.js](https://nodejs.org/en/download/) 
+- Yarn can be downloaded and installed through here [Yarn](https://yarnpkg.com/en/)
 
 ### Installing and Running
 
@@ -27,9 +20,21 @@ yarn install
 yarn start
 ```
 
-## Create React App
+**Observation:** You might have to increase the limit of max files the kernel can withstand. This is
+the default behaviour on macOs (I haven't installed _watchman_).
 
-This project was bootstrapped with [Create React Native App](https://github.com/react-community/create-react-native-app). 
+```bash
+sudo sysctl -w kern.maxfiles=5242880
+sudo sysctl -w kern.maxfilesperproc=524288
+```
+
+### Develop Environment
+
+This application was tested only in iOS on an actual device (no emulator were used).
+
+## Create React Native App
+
+This project was bootstrapped with [Create React Native App](https://github.com/react-community/create-react-native-app).
 
 ## Contributing
 

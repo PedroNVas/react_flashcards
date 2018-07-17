@@ -1,18 +1,8 @@
-function entries(state = {}, action) {
-  switch (action.type) {
-    case "BLAH":
-      return {
-        ...state,
-        ...action.entries
-      };
-    case "BLEH":
-      return {
-        ...state,
-        ...action.entry
-      };
-    default:
-      return state;
-  }
-}
+// @flow
 
-export default entries;
+import { combineReducers } from "redux";
+
+import Decks from "./Decks";
+import Quiz from "./Quiz";
+
+export default combineReducers({ Decks, Quiz });

@@ -1,78 +1,33 @@
 // @flow
 
-import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  StatusBar,
-  TouchableOpacity
-} from "react-native";
-import {
-  createStackNavigator,
-  createBottomTabNavigator
-} from "react-navigation";
-import { Provider } from "react-redux";
 import { Constants } from "expo";
-import { createStore } from "redux";
-import Example from "./components/example/Example";
-import reducer from "./redux/reducers";
+import React from "react";
+import { StatusBar, View } from "react-native";
+import { Provider } from "react-redux";
+import { applyMiddleware, compose, createStore } from "redux";
+import thunk from "redux-thunk";
+import AppRoutes from "./AppRoutes";
+import reducers from "./redux/reducers";
+
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)));
 
 export default class App extends React.Component<{}, {}> {
   render() {
     return (
-      <Provider store={createStore(reducer)}>
-        <View style={styles.container}>
-          <AppStatusBar backgroundColor={"red"} barStyle="dark-content" />
-          <TouchableOpacity onPress={() => alert("Pressed")}>
-            <Text>HERE</Text>
-          </TouchableOpacity>
-
-          {/*<Example foo={42} />*/}
-          <Tabs />
-          {/*/!*<MainNavigator />*!/*/}
-          <Ionicons name="ios-pizza" color="red" size={100} />
+      <Provider store={store}>
+        <View style={{ flex: 1 }}>
+          <AppStatusBar backgroundColor="blue" barStyle="light-content" />
+          <AppRoutes />
         </View>
       </Provider>
     );
   }
 }
 
-function AppStatusBar({ backgroundColor, ...props }) {
-  return (
-    <View style={{ backgroundColor, height: Constants.statusBarHeight }}>
-      <StatusBar translucent backgroundColor={backgroundColor} {...props} />
-    </View>
-  );
-}
-
-const Home = () => (
-  <View>
-    <Text>THIS IS HOME</Text>
+const AppStatusBar = ({ backgroundColor, ...props }) => (
+  <View style={{ backgroundColor, height: Constants.statusBarHeight }}>
+    <StatusBar translucent backgroundColor={backgroundColor} {...props} />
   </View>
 );
-
-const MainNavigator = createStackNavigator({
-  Decks: {
-    screen: Home
-  }
-});
-
-const Tabs = createBottomTabNavigator({
-  Home: {
-    screen: Home,
-    navigationOptions: {
-      tabBarLabel: "History"
-    }
-  }
-});
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around"
-  }
-});
