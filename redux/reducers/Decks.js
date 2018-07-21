@@ -1,9 +1,13 @@
 // @flow
 
+import { AsyncStorage } from "react-native";
 import { fromJS, Map } from "immutable";
 import type { DeckAction } from "../actions/DeckActions";
 import {
   ADD_CARD_TO_DECK,
+  DELETE_DECK,
+  FETCH_DECKS,
+  FETCH_DECKS_FULFILLED,
   GET_DECK,
   GET_DECKS,
   SAVE_DECK_TITLE
@@ -26,13 +30,28 @@ type State = {
   }
 };
 
+export const ASYNC_STORAGE_DECKS_KEY = "decks";
+
 const decksInitialState = fromJS({
   decks: {},
   selectedDeck: {}
 });
 
+function persistData(state: State) {
+  AsyncStorage.removeItem(ASYNC_STORAGE_DECKS_KEY).then(
+    AsyncStorage.setItem(
+      ASYNC_STORAGE_DECKS_KEY,
+      JSON.stringify(JSON.stringify(state.get("decks")))
+    )
+  );
+}
+
 const Decks = (state: State = decksInitialState, action: DeckAction): State => {
   switch (action.type) {
+    case FETCH_DECKS_FULFILLED: {
+      return state.set("decks", fromJS(action.payload));
+    }
+
     case GET_DECKS:
       return state;
 
@@ -50,7 +69,19 @@ const Decks = (state: State = decksInitialState, action: DeckAction): State => {
         questions: []
       };
 
-      return state.setIn(["decks", `${deckId}`], fromJS(newDeck));
+      const updatedState = state.setIn(["decks", `${deckId}`], fromJS(newDeck));
+
+      persistData(updatedState);
+      return updatedState;
+    }
+
+    case DELETE_DECK: {
+      const { deckId } = action;
+
+      const updatedState = state.deleteIn(["decks", `${deckId}`]);
+
+      persistData(updatedState);
+      return updatedState;
     }
 
     case ADD_CARD_TO_DECK: {
@@ -65,7 +96,10 @@ const Decks = (state: State = decksInitialState, action: DeckAction): State => {
       );
 
       const selectedDeck = updatedState.getIn(["decks", `${deckId}`]);
-      return updatedState.set("selectedDeck", Map(selectedDeck));
+      const finalState = updatedState.set("selectedDeck", Map(selectedDeck));
+
+      persistData(finalState);
+      return finalState;
     }
 
     default:

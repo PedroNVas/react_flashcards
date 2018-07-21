@@ -1,12 +1,30 @@
 // @flow
 
+import { AsyncStorage } from "react-native";
+import { ASYNC_STORAGE_DECKS_KEY } from "../reducers/Decks";
+
 export type DeckAction = {
   +type: string,
-  deckId?: string,
-  deckCard?: {
+  +payload?: Promise<any>,
+  +deckId?: string,
+  +deckCard?: {
     question: string,
     answer: string
   }
+};
+
+const FETCH_DECKS = "FETCH_DECKS";
+export const FETCH_DECKS_PENDING = "FETCH_DECKS_PENDING";
+export const FETCH_DECKS_REJECTED = "FETCH_DECKS_REJECTED";
+export const FETCH_DECKS_FULFILLED = "FETCH_DECKS_FULFILLED";
+
+export const fetchDecks = (): DeckAction => {
+  return {
+    type: FETCH_DECKS,
+    payload: AsyncStorage.getItem(ASYNC_STORAGE_DECKS_KEY)
+      .then(JSON.parse)
+      .then(JSON.parse)
+  };
 };
 
 export const GET_DECKS = "GET_DECKS";
@@ -28,10 +46,19 @@ export const getDeck = (title: string): DeckAction => {
 
 export const SAVE_DECK_TITLE = "SAVE_DECK_TITLE";
 
-export const saveDeckTitle = (title: string): DeckAction => {
+export const saveDeckTitle = (deckId: string): DeckAction => {
   return {
     type: SAVE_DECK_TITLE,
-    deckId: title
+    deckId
+  };
+};
+
+export const DELETE_DECK = "DELETE_DECK";
+
+export const deleteDeck = (deckId: string): DeckAction => {
+  return {
+    type: DELETE_DECK,
+    deckId
   };
 };
 

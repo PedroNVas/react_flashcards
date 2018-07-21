@@ -1,17 +1,41 @@
 // @flow
 
+import { Constants, LinearGradient } from "expo";
 import React from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Platform, StyleSheet, Text, View } from "react-native";
+import { Button, FormLabel } from "react-native-elements";
 import { connect } from "react-redux";
 import { getDeck } from "../../redux/actions/DeckActions";
 import { startQuiz } from "../../redux/actions/QuizActions";
+import {
+  bottomColor,
+  purple,
+  topColor,
+  white,
+  whitish,
+  yellow
+} from "../../utils/Colors";
+import {
+  clearLocalNotification,
+  setLocalNotification
+} from "../../utils/NotificationUtils";
+import EmptyView from "../emptyView/EmptyView";
 
 type Props = {
   navigation: {
     navigate: (
-      string,
-      ?{ deckTitle: string, nextQuestion: number, questions: [] }
-    ) => void
+      routeName: string,
+      params:
+        | {
+            nextQuestion: number
+          }
+        | { deckTitle: string }
+    ) => void,
+    state: {
+      params: {
+        deckTitle: string
+      }
+    }
   },
   deck: {
     get: string => []
@@ -26,9 +50,10 @@ class Deck extends React.Component<Props, {}> {
     return {
       title: deckTitle,
       headerStyle: {
-        backgroundColor: "#f4511e"
+        height: 3 * Constants.statusBarHeight,
+        backgroundColor: topColor
       },
-      headerTintColor: "#fff",
+      headerTintColor: white,
       headerTitleStyle: {
         fontWeight: "bold"
       }
@@ -40,50 +65,91 @@ class Deck extends React.Component<Props, {}> {
     this.props.getDeck(deckTitle);
   }
 
+  _flatListItemSeparator = () => <View style={styles.itemSeparator} />;
+
   _startQuiz = () => {
-    const { deck, navigation } = this.props;
-    const questions = deck.get("questions");
+    const { navigation } = this.props;
 
-    if (questions.size === 0) {
-      Alert.alert("Cannot start quiz with 0 questions", undefined);
-    } else {
-      this.props.startQuiz();
+    this.props.startQuiz();
 
-      navigation.navigate("QuizView", {
-        nextQuestion: 0,
-        questions
-      });
-    }
+    clearLocalNotification().then(setLocalNotification);
+
+    navigation.navigate("QuizView", {
+      nextQuestion: 0
+    });
+  };
+
+  _getQuestion = item =>
+    item.get === undefined ? item.question : item.get("question");
+
+  _keyExtractor = (item, index) => this._getQuestion(item);
+
+  _renderItem = question => {
+    const { item } = question;
+
+    const itemQuestion = this._getQuestion(item);
+
+    return (
+      <View style={styles.card}>
+        <View style={styles.cardText}>
+          <Text style={styles.question}>{itemQuestion}</Text>
+        </View>
+      </View>
+    );
   };
 
   render() {
     const { deck, navigation } = this.props;
     const title = deck.get("title");
     const questions = deck.get("questions");
+    const isQuizAvailable = !(questions && questions.size !== 0);
 
     return (
-      <View style={styles.container}>
-        <View style={styles.titleContainer}>
-          <Text>{title}</Text>
-          {questions && <Text>{questions.size}</Text>}
-        </View>
+      <LinearGradient colors={[topColor, bottomColor]} style={styles.container}>
         <View style={styles.btnContainer}>
-          <TouchableOpacity
+          <Button
+            large
+            transparent
+            buttonStyle={styles.btn}
+            icon={
+              Platform.OS === "ios"
+                ? { name: "ios-create-outline", type: "ionicon" }
+                : { name: "md-create", type: "ionicon" }
+            }
+            title="New Question"
             onPress={() =>
               navigation.navigate("AddQuestion", { deckTitle: title })
             }
-            style={styles.addBtn}
-          >
-            <Text>Create New Question</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          />
+
+          <Button
+            large
+            disabled={isQuizAvailable}
+            disabledStyle={styles.disabledBtn}
+            buttonStyle={styles.btn}
+            transparent
+            icon={{ name: "question-answer" }}
+            title="Start a Quiz"
             onPress={() => this._startQuiz()}
-            style={styles.quizBtn}
-          >
-            <Text>Start a Quiz</Text>
-          </TouchableOpacity>
+          />
         </View>
-      </View>
+        <FormLabel labelStyle={styles.formLabelInput}>Questions</FormLabel>
+        <View style={[styles.itemSeparator, { backgroundColor: purple }]} />;
+        {questions && (
+          <FlatList
+            data={questions.toArray()}
+            renderItem={this._renderItem}
+            keyExtractor={this._keyExtractor}
+            ItemSeparatorComponent={this._flatListItemSeparator}
+            ListEmptyComponent={
+              <EmptyView
+                mainText="No questions!"
+                subText="Try creating a new one"
+              />
+            }
+          />
+        )}
+      </LinearGradient>
     );
   }
 }
@@ -92,32 +158,47 @@ class Deck extends React.Component<Props, {}> {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
-  },
-  titleContainer: {
-    justifyContent: "center",
-    alignItems: "center"
+    flex: 1,
+    paddingTop: Constants.statusBarHeight
   },
   btnContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "stretch"
+    justifyContent: "space-around"
   },
-  addBtn: {
-    backgroundColor: "#3b99ff",
-    padding: 10,
-    borderRadius: 7,
-    height: 45,
-    marginLeft: 40,
-    marginRight: 40
+  btn: {
+    marginTop: "10%"
   },
-  quizBtn: {
-    backgroundColor: "#78fff0",
-    padding: 10,
-    borderRadius: 7,
-    height: 45,
-    marginLeft: 40,
-    marginRight: 40
+  disabledBtn: {
+    backgroundColor: "transparent",
+    opacity: 0.3
+  },
+  itemSeparator: {
+    height: 1,
+    width: "90%",
+    backgroundColor: whitish,
+    marginTop: "5%",
+    marginLeft: "5%"
+  },
+  formLabelInput: {
+    marginTop: "10%",
+    fontSize: 18,
+    color: white
+  },
+  card: {
+    flex: 1,
+    marginTop: "5%",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    marginLeft: "5%",
+    width: "90%"
+  },
+  cardText: {
+    alignItems: "flex-start",
+    marginTop: "2%",
+    marginBottom: "2%"
+  },
+  question: {
+    fontSize: 28,
+    color: yellow
   }
 });
 

@@ -1,7 +1,7 @@
 // @flow
 
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { connect } from "react-redux";
 import {
   CORRECT_ANSWER,
@@ -22,7 +22,10 @@ type Props = {
         }>
       }
     },
-    navigate: string => void
+    navigate: (routeName: string, params?: { nextQuestion: number }) => void
+  },
+  deck: {
+    get: (key: string) => any
   },
   correctAnswer: () => void,
   incorrectAnswer: () => void,
@@ -31,8 +34,9 @@ type Props = {
 
 class QuizView extends React.Component<Props, {}> {
   _submitAnswer = (answerType: string) => {
-    const { navigation } = this.props;
-    const { nextQuestion, questions } = navigation.state.params;
+    const { navigation, deck } = this.props;
+    const { nextQuestion } = navigation.state.params;
+    const questions = deck.get("questions");
 
     if (answerType === CORRECT_ANSWER) {
       this.props.correctAnswer();
@@ -46,23 +50,31 @@ class QuizView extends React.Component<Props, {}> {
       navigation.navigate("CompleteQuiz");
     } else {
       navigation.navigate("QuizView", {
-        nextQuestion: nextQuestion + 1,
-        questions
+        nextQuestion: nextQuestion + 1
       });
     }
   };
 
-  render() {
-    const { navigation } = this.props;
+  _getQuestion = item =>
+    item.get === undefined ? item.question : item.get("question");
 
-    const { nextQuestion, questions } = navigation.state.params;
+  _getAnswer = item =>
+    item.get === undefined ? item.answer : item.get("answer");
+
+  render() {
+    const { navigation, deck } = this.props;
+
+    const { nextQuestion } = navigation.state.params;
+    const questions = deck.get("questions");
 
     const currentQuestion = questions.get(nextQuestion);
 
     return (
       <View style={{ flex: 1 }}>
-        <Text>{currentQuestion.question}</Text>
-        <Text>{currentQuestion.answer}</Text>
+        <View>
+          <Text>{this._getQuestion(currentQuestion)}</Text>
+          <Text>{this._getAnswer(currentQuestion)}</Text>
+        </View>
 
         <TouchableOpacity onPress={() => this._submitAnswer(CORRECT_ANSWER)}>
           <Text>Correct</Text>

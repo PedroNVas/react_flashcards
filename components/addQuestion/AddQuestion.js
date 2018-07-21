@@ -1,22 +1,30 @@
 // @flow
 
+import { Constants, LinearGradient } from "expo";
 import React from "react";
-// TODO - SwipeableFlatList
 import {
-  Alert,
   KeyboardAvoidingView,
-  ScrollView,
+  Platform,
   StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  Text
 } from "react-native";
+import { Button, FormInput, FormLabel } from "react-native-elements";
 import { connect } from "react-redux";
 import _ from "underscore.string";
 import { addCardToDeck } from "../../redux/actions/DeckActions";
+import { bottomColor, topColor, white } from "../../utils/Colors";
+import DismissKeyboard from "../../utils/Common";
 
 type Props = {
-  navigation: {},
+  navigation: {
+    navigate: (routeName: string) => void,
+    state: {
+      params: {
+        deckTitle: string
+      }
+    }
+  },
   addCard: (string, { answer: string, question: string }) => void
 };
 
@@ -29,12 +37,10 @@ class AddQuestion extends React.Component<Props, State> {
   static navigationOptions = () => {
     return {
       headerStyle: {
-        backgroundColor: "#f4511e"
+        height: 3 * Constants.statusBarHeight,
+        backgroundColor: topColor
       },
-      headerTintColor: "#fff",
-      headerTitleStyle: {
-        fontWeight: "bold"
-      }
+      headerTintColor: white
     };
   };
 
@@ -45,72 +51,104 @@ class AddQuestion extends React.Component<Props, State> {
 
   _addNewCard = (deckTitle, card) => {
     const { addCard, navigation } = this.props;
-    const { question, answer } = card;
 
-    if (_.isBlank(question) || _.isBlank(answer)) {
-      Alert.alert(
-        "Empty question and/or answer",
-        "Questions and answers cannot be empty"
-      );
-    } else {
-      addCard(deckTitle, card);
+    addCard(deckTitle, card);
 
-      this.setState({ question: "", answer: "" });
+    this.setState({ question: "", answer: "" });
 
-      navigation.navigate("Deck");
-    }
+    navigation.navigate("Deck");
   };
 
   render() {
     const { question, answer } = this.state;
     const { deckTitle } = this.props.navigation.state.params;
+    const canCreateQuestion = !_.isBlank(question) && !_.isBlank(answer);
 
     return (
-      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <ScrollView scrollEnabled={false}>
-          <TextInput
-            style={styles.textInput}
-            onChangeText={question => this.setState({ question })}
-            value={question}
-            autoFocus
-            placeholder="New question"
-            placeholderTextColor="#000"
-          />
-        </ScrollView>
-
-        <ScrollView scrollEnabled={false}>
-          <TextInput
-            style={styles.textInput}
-            onChangeText={answer => this.setState({ answer })}
-            value={answer}
-            placeholder="Answer"
-            placeholderTextColor="#000"
-          />
-        </ScrollView>
-
-        <TouchableOpacity
-          onPress={() => this._addNewCard(deckTitle, { answer, question })}
-          style={styles.submitBtn}
+      <DismissKeyboard>
+        <LinearGradient
+          colors={[topColor, bottomColor]}
+          style={styles.container}
         >
-          <Text>Submit</Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
+          <KeyboardAvoidingView behavior="padding" enabled>
+            <FormLabel
+              containerStyle={[styles.formLabelContainer, { marginTop: "5%" }]}
+              labelStyle={styles.formLabelInput}
+            >
+              Your Question
+            </FormLabel>
+
+            <FormInput
+              containerStyle={[styles.formInputContainer, { marginTop: "3%" }]}
+              inputStyle={styles.formInputInput}
+              keyboardAppearance="light"
+              autoFocus
+              blurOnSubmit
+              onChangeText={question => this.setState({ question })}
+              value={question}
+            />
+
+            <FormLabel
+              containerStyle={[styles.formLabelContainer, { marginTop: "15%" }]}
+              labelStyle={styles.formLabelInput}
+            >
+              Your Answer
+            </FormLabel>
+
+            <FormInput
+              containerStyle={[styles.formInputContainer, { marginTop: "3%" }]}
+              inputStyle={styles.formInputInput}
+              keyboardAppearance="light"
+              blurOnSubmit
+              onChangeText={answer => this.setState({ answer })}
+              value={answer}
+            />
+
+            <Button
+              large
+              disabled={!canCreateQuestion}
+              disabledStyle={styles.disabledBtnStyle}
+              style={styles.btnStyle}
+              transparent
+              icon={
+                Platform.OS === "ios"
+                  ? { name: "ios-create-outline", type: "ionicon" }
+                  : { name: "md-create", type: "ionicon" }
+              }
+              title="Create Question"
+              onPress={() => this._addNewCard(deckTitle, { answer, question })}
+            />
+          </KeyboardAvoidingView>
+        </LinearGradient>
+      </DismissKeyboard>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  title: {
-    alignItems: "center"
+  container: {
+    flex: 1,
+    paddingTop: Constants.statusBarHeight
   },
-  textInput: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1
+  formLabelContainer: {
+    alignSelf: "flex-start"
   },
-  submitBtn: {
-    alignItems: "center"
-  }
+  formLabelInput: {
+    fontSize: 18,
+    color: white
+  },
+  formInputContainer: {
+    alignSelf: "flex-start"
+  },
+  formInputInput: {
+    fontSize: 20,
+    color: white
+  },
+  disabledBtnStyle: {
+    backgroundColor: "transparent",
+    opacity: 0.3
+  },
+  btnStyle: {}
 });
 
 const mapDispatchToProps = dispatch => {

@@ -1,16 +1,18 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Constants } from "expo";
 import React from "react";
-import { View, Text } from "react-native";
+import { Platform } from "react-native";
 import {
   createBottomTabNavigator,
   createStackNavigator
 } from "react-navigation";
+import AddQuestion from "./components/addQuestion/AddQuestion";
 import AddDeck from "./components/deck/AddDeck";
 import Deck from "./components/deck/Deck";
 import Decks from "./components/decks/Decks";
-import AddQuestion from "./components/addQuestion/AddQuestion";
 import CompleteQuiz from "./components/quiz/CompleteQuiz";
 import QuizView from "./components/quiz/QuizView";
+import { bottomColor, white } from "./utils/Colors";
 
 const Tabs = createBottomTabNavigator(
   {
@@ -21,7 +23,7 @@ const Tabs = createBottomTabNavigator(
         tabBarIcon: ({ tintColor }) => (
           <MaterialCommunityIcons
             name="cards-outline"
-            size={30}
+            size={40}
             color={tintColor}
           />
         )
@@ -30,26 +32,27 @@ const Tabs = createBottomTabNavigator(
     AddDeck: {
       screen: AddDeck,
       navigationOptions: {
-        tabBarLabel: "Add Deck"
+        tabBarLabel: "New Deck",
+        tabBarIcon: ({ tintColor }) => (
+          <Ionicons
+            name={Platform.OS === "ios" ? "ios-add" : "md-add"}
+            size={40}
+            color={tintColor}
+          />
+        )
       }
     }
   },
   {
-    navigationOptions: {
-      header: null
-    },
     tabBarOptions: {
-      activeTintColor: "#ffee00",
+      activeTintColor: white,
       style: {
-        height: 56,
-        backgroundColor: "#2e7bff",
-        shadowColor: "#ff882b",
-        shadowOffset: {
-          width: 0,
-          height: 3
-        },
-        shadowRadius: 20,
-        shadowOpacity: 0.7
+        height: 4 * Constants.statusBarHeight,
+        backgroundColor: bottomColor,
+        borderTopWidth: 0
+      },
+      labelStyle: {
+        fontSize: 18
       }
     }
   }
@@ -57,18 +60,13 @@ const Tabs = createBottomTabNavigator(
 
 export default createStackNavigator({
   Home: {
-    screen: Tabs
+    screen: Tabs,
+    navigationOptions: {
+      header: null
+    }
   },
-  Deck: {
-    screen: Deck
-  },
-  AddQuestion: {
-    screen: AddQuestion
-  },
-  QuizView: {
-    screen: QuizView
-  },
-  CompleteQuiz: {
-    screen: CompleteQuiz
-  }
+  Deck,
+  AddQuestion,
+  QuizView,
+  CompleteQuiz
 });

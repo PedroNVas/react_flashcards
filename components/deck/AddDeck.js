@@ -1,28 +1,29 @@
 // @flow
 
+import { Constants, LinearGradient } from "expo";
 import React from "react";
 import {
   Alert,
-  Keyboard,
   KeyboardAvoidingView,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
-  View
+  Platform
 } from "react-native";
+import { Button, FormInput, FormLabel } from "react-native-elements";
 import { connect } from "react-redux";
 import _ from "underscore.string";
 import { saveDeckTitle } from "../../redux/actions/DeckActions";
+import { bottomColor, topColor, white } from "../../utils/Colors";
+import { setLocalNotification } from "../../utils/NotificationUtils";
+import DismissKeyboard from "../../utils/Common";
 
 type Props = {
   decks: {
     has: string => boolean
   },
-  addDeck: string => void,
+  addDeck: (deckTitle: string) => void,
   navigation: {
-    navigate: string => void
+    navigate: (routeName: string, params: { deckTitle: string }) => void
   }
 };
 
@@ -38,73 +39,111 @@ class AddDeck extends React.Component<Props, State> {
   _addNewDeck = (deckTitle: string) => {
     const { addDeck, navigation, decks } = this.props;
 
-    if (!_.isBlank(deckTitle)) {
-      if (decks.has(deckTitle)) {
-        Alert.alert("Duplicated deck", "There can be no duplicated decks");
-      } else {
-        addDeck(deckTitle);
-
-        // message stating that the deck was created
-
-        this.setState({ deckTitle: "" });
-
-        navigation.navigate("Deck", { deckTitle });
-      }
+    if (decks.has(deckTitle)) {
+      Alert.alert("Duplicated deck", "There can be no duplicated decks");
     } else {
-      Alert.alert(
-        "Empty deck title",
-        "There can be no deck with an empty title"
-      );
+      addDeck(deckTitle);
+
+      // message stating that the deck was created
+
+      setLocalNotification();
+
+      navigation.navigate("Deck", { deckTitle });
+
+      this.setState({ deckTitle: "" });
     }
   };
 
   render() {
     const { deckTitle } = this.state;
+    const isDeckTitleEmpty = _.isBlank(deckTitle);
 
     return (
-      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <View style={styles.title}>
-          <Text>What is the title of your new Deck?</Text>
-        </View>
-
-        <ScrollView scrollEnabled={false}>
-          <TextInput
-            style={styles.textInput}
-            onChangeText={deckTitle => this.setState({ deckTitle })}
-            value={deckTitle}
-            autoFocus
-            placeholder="New deck title"
-            placeholderTextColor="#000"
-            onSubmitEditing={Keyboard.dismiss}
-          />
-        </ScrollView>
-
-        <TouchableOpacity
-          onPress={() => this._addNewDeck(deckTitle)}
-          style={styles.submitBtn}
+      <DismissKeyboard>
+        <LinearGradient
+          colors={[topColor, bottomColor]}
+          style={styles.container}
         >
-          <Text>Create Deck</Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
+          <KeyboardAvoidingView behavior="padding" style={styles.mainView}>
+            <Text style={styles.titleText}>
+              What is the title of your new Deck?
+            </Text>
+
+            <FormLabel
+              containerStyle={styles.formLabelContainer}
+              labelStyle={styles.formLabelInput}
+            >
+              Deck Title
+            </FormLabel>
+
+            <FormInput
+              containerStyle={styles.formInputContainer}
+              inputStyle={styles.formInputInput}
+              keyboardAppearance="light"
+              autoFocus
+              blurOnSubmit
+              onChangeText={deckTitle => this.setState({ deckTitle })}
+              value={deckTitle}
+            />
+
+            <Button
+              large
+              disabled={isDeckTitleEmpty}
+              disabledStyle={styles.disabledBtnStyle}
+              style={styles.btnStyle}
+              transparent
+              icon={
+                Platform.OS === "ios"
+                  ? { name: "ios-create-outline", type: "ionicon" }
+                  : { name: "md-create", type: "ionicon" }
+              }
+              title="Create Deck"
+              onPress={() => this._addNewDeck(deckTitle)}
+            />
+          </KeyboardAvoidingView>
+        </LinearGradient>
+      </DismissKeyboard>
     );
   }
 }
 
-// TODO - Always auto focus
-
 // region styles
 
 const styles = StyleSheet.create({
-  title: {
+  container: {
+    flex: 1,
+    paddingTop: Constants.statusBarHeight
+  },
+  mainView: {
     alignItems: "center"
   },
-  textInput: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1
+  titleText: {
+    fontSize: 20,
+    color: white,
+    marginTop: "10%"
   },
-  submitBtn: {
-    alignItems: "center"
+  formLabelContainer: {
+    alignSelf: "flex-start",
+    marginTop: "10%"
+  },
+  formLabelInput: {
+    fontSize: 18,
+    color: white
+  },
+  formInputContainer: {
+    alignSelf: "flex-start",
+    marginTop: "3%"
+  },
+  formInputInput: {
+    fontSize: 20,
+    color: white
+  },
+  disabledBtnStyle: {
+    backgroundColor: "transparent",
+    opacity: 0.3
+  },
+  btnStyle: {
+    marginTop: "20%"
   }
 });
 

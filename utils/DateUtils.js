@@ -15,16 +15,5 @@ export default function timeDifference(dateStarted: Date, dateEnded: Date) {
   differenceMillis = differenceMillis / 60;
   const hours = Math.floor(differenceMillis % 24);
 
-  const days = Math.floor(differenceMillis / 24);
-
-  return (
-    days +
-    " days, " +
-    hours +
-    " hours, " +
-    minutes +
-    " minutes, and " +
-    seconds +
-    " seconds"
-  );
+  return [hours, minutes, seconds];
 }

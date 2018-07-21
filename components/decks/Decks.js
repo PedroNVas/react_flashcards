@@ -1,31 +1,61 @@
 // @flow
 
+import { Constants, LinearGradient } from "expo";
 import React from "react";
-// TODO - SwipeableFlatList
 import {
   FlatList,
   StyleSheet,
   Text,
-  View,
-  TouchableOpacity
+  TouchableOpacity,
+  View
 } from "react-native";
+import Swipeable from "react-native-swipeable";
 import { connect } from "react-redux";
-import { getDecks } from "../../redux/actions/DeckActions";
-import EmptyDecks from "./EmptyDecks";
+import {
+  deleteDeck,
+  fetchDecks,
+  getDecks
+} from "../../redux/actions/DeckActions";
+import {
+  bottomColor,
+  grey,
+  red,
+  topColor,
+  white,
+  whitish
+} from "../../utils/Colors";
+import RightButton from "../swipe/RightButton";
+import EmptyView from "../emptyView/EmptyView";
 
 type Props = {
+  navigation: {
+    navigate: (routeName: string, params: { deckTitle: string }) => void
+  },
   decks: {
     toArray: () => []
   },
-  getDecks: () => void
+  getDecks: () => void,
+  fetchDecks: () => void,
+  deleteDeck: (deckId: string) => Function
 };
 
-class Decks extends React.PureComponent<Props, {}> {
+type State = {
+  isSwiping: boolean
+};
+
+class Decks extends React.PureComponent<Props, State> {
+  state = {
+    isSwiping: false
+  };
+
   componentDidMount() {
+    this.props.fetchDecks();
     this.props.getDecks();
   }
 
   _keyExtractor = (item, index) => item.get("title");
+
+  _flatListItemSeparator = () => <View style={styles.itemSeparator} />;
 
   _renderItem = deck => {
     const title = deck.item.get("title");
@@ -33,16 +63,41 @@ class Decks extends React.PureComponent<Props, {}> {
 
     const { navigate } = this.props.navigation;
 
+    const cardText = numCards === 1 ? "card" : "cards";
+
+    const rightButtons = [
+      <RightButton
+        key="rightLeft"
+        title="Delete"
+        backgroundColor={red}
+        btnCallback={() => this.props.deleteDeck(title)}
+      />,
+      <RightButton
+        key="rightRight"
+        title="Edit"
+        backgroundColor={grey}
+        btnCallback={() => alert("Pressed")}
+      />
+    ];
+
     return (
       <View style={styles.card}>
-        <TouchableOpacity
-          onPress={() => navigate("Deck", { deckTitle: title })}
+        <Swipeable
+          rightButtons={rightButtons}
+          onSwipeStart={() => this.setState({ isSwiping: true })}
+          onSwipeRelease={() => this.setState({ isSwiping: false })}
         >
-          <View style={styles.cardText}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.subTitle}>{numCards} cards</Text>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigate("Deck", { deckTitle: title })}
+          >
+            <View style={styles.cardText}>
+              <Text style={styles.mainTitle}>{title}</Text>
+              <Text style={styles.subTitle}>
+                {numCards} {cardText}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </Swipeable>
       </View>
     );
   };
@@ -51,40 +106,59 @@ class Decks extends React.PureComponent<Props, {}> {
     const { decks } = this.props;
 
     return (
-      <View style={{ flex: 1 }}>
+      <LinearGradient colors={[topColor, bottomColor]} style={styles.container}>
         <FlatList
           data={decks.toArray()}
           renderItem={this._renderItem}
-          ListEmptyComponent={<EmptyDecks />}
+          ListEmptyComponent={
+            <EmptyView
+              mainText="No decks!"
+              subText="You should definitely create a new one"
+            />
+          }
           keyExtractor={this._keyExtractor}
+          ItemSeparatorComponent={this._flatListItemSeparator}
+          scrollEnabled={!this.state.isSwiping}
         />
-      </View>
+      </LinearGradient>
     );
   }
 }
 
+// TODO - FLAT LIST WITH SWIPE (Able to delete and edit as well)
+
 // region Styles
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: Constants.statusBarHeight
+  },
+  itemSeparator: {
+    height: 1,
+    width: "90%",
+    backgroundColor: whitish,
+    marginTop: "5%",
+    marginLeft: "5%"
+  },
   card: {
     flex: 1,
-    justifyContent: "flex-start",
-    alignItems: "center",
-    backgroundColor: "#99ffff",
-    borderRadius: 20,
-    margin: "7%"
+    marginTop: "5%",
+    backgroundColor: "rgba(255, 255, 255, 0.15)"
   },
   cardText: {
     alignItems: "center",
     marginTop: "2%",
     marginBottom: "2%"
   },
-  title: {
-    fontSize: 24
+  mainTitle: {
+    fontSize: 28,
+    color: white
   },
   subTitle: {
-    fontSize: 16,
-    color: "#636063"
+    fontSize: 20,
+    color: whitish,
+    marginTop: "3%"
   }
 });
 
@@ -94,7 +168,9 @@ const styles = StyleSheet.create({
 
 const mapDispatchToProps = dispatch => {
   return {
-    getDecks: () => dispatch(getDecks)
+    fetchDecks: () => dispatch(fetchDecks()),
+    getDecks: () => dispatch(getDecks),
+    deleteDeck: deckId => dispatch(deleteDeck(deckId))
   };
 };
 
