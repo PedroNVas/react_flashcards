@@ -2,13 +2,7 @@
 
 import { Constants, LinearGradient } from "expo";
 import React from "react";
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
+import { Platform, StyleSheet, View, Text } from "react-native";
 import { Button, Icon } from "react-native-elements";
 import { connect } from "react-redux";
 import { resetQuiz, startQuiz } from "../../redux/actions/QuizActions";
@@ -75,8 +69,13 @@ class CompleteQuiz extends React.Component<Props, {}> {
     });
   };
 
+  _roundNumber = (percent: number) => {
+    return percent.toFixed(2);
+  };
+
   render() {
-    const { quiz } = this.props;
+    const { quiz, deck } = this.props;
+    const title = deck.get("title");
     const correctAnswers = quiz.get("correct");
     const incorrectAnswers = quiz.get("incorrect");
     const timeStarted = quiz.get("timeStarted");
@@ -86,15 +85,18 @@ class CompleteQuiz extends React.Component<Props, {}> {
       return null;
     }
 
-    const percent =
-      (correctAnswers / (correctAnswers + incorrectAnswers)) * 100;
+    const percent = this._roundNumber(
+      (correctAnswers / (correctAnswers + incorrectAnswers)) * 100
+    );
 
     const duration = timeDifference(timeStarted, timeFinished);
 
     return (
       <LinearGradient colors={[topColor, bottomColor]} style={styles.container}>
         <View style={styles.title}>
-          <TextResult>Completed Quiz!</TextResult>
+          <TextResult>Completed </TextResult>
+          <Text style={styles.quizTitle}>{title}</Text>
+          <TextResult> Quiz!</TextResult>
         </View>
 
         <View
@@ -190,11 +192,16 @@ const styles = StyleSheet.create({
     flex: 1
   },
   title: {
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     marginLeft: "10%",
     width: "80%",
     flex: 0.5
+  },
+  quizTitle: {
+    fontSize: 20,
+    color: purple
   },
   result: {
     flexDirection: "row",

@@ -71,12 +71,6 @@ class Decks extends React.PureComponent<Props, State> {
         title="Delete"
         backgroundColor={red}
         btnCallback={() => this.props.deleteDeck(title)}
-      />,
-      <RightButton
-        key="rightRight"
-        title="Edit"
-        backgroundColor={grey}
-        btnCallback={() => alert("Pressed")}
       />
     ];
 

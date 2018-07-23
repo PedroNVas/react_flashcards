@@ -1,6 +1,6 @@
 // @flow
 
-import { fromJS, Map } from "immutable";
+import { fromJS } from "immutable";
 import type { QuizAction } from "../actions/QuizActions";
 import {
   CORRECT_ANSWER,

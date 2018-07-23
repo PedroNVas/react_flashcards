@@ -5441,7 +5441,7 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1:
+prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2:
   version "15.6.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.6.2.tgz#05d5ca77b4453e985d60fc7ff8c859094a497102"
   dependencies:
@@ -5595,6 +5595,12 @@ react-native-branch@2.2.5:
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/react-native-branch/-/react-native-branch-2.2.5.tgz#4074dd63b4973e6397d9ce50e97b57c77a518e9d"
 
+react-native-collapsible@^0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/react-native-collapsible/-/react-native-collapsible-0.13.0.tgz#bd88aa1649b15cb748d59aac44f8f6b94bb77efd"
+  dependencies:
+    prop-types "^15.6.2"
+
 react-native-dismiss-keyboard@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/react-native-dismiss-keyboard/-/react-native-dismiss-keyboard-1.0.0.tgz#32886242b3f2317e121f3aeb9b0a585e2b879b49"
@@ -5627,17 +5633,6 @@ react-native-gesture-handler@1.0.4:
     hoist-non-react-statics "^2.3.1"
     invariant "^2.2.2"
     prop-types "^15.5.10"
-
-react-native-iphone-x-helper@^1.0.1:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/react-native-iphone-x-helper/-/react-native-iphone-x-helper-1.0.3.tgz#7a2f1e0574e899a0f1d426e6167fd98990083214"
-
-react-native-keyboard-aware-scroll-view@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/react-native-keyboard-aware-scroll-view/-/react-native-keyboard-aware-scroll-view-0.6.0.tgz#0f15bd7d09c0cb48a4ab9ba0d83897fc84b1a1e1"
-  dependencies:
-    prop-types "^15.6.0"
-    react-native-iphone-x-helper "^1.0.1"
 
 react-native-maps@0.21.0:
   version "0.21.0"
