@@ -22,8 +22,6 @@ export const fetchDecks = (): DeckAction => {
   return {
     type: FETCH_DECKS,
     payload: AsyncStorage.getItem(ASYNC_STORAGE_DECKS_KEY)
-      .then(JSON.parse)
-      .then(JSON.parse)
   };
 };
 

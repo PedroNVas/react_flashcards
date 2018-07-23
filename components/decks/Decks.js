@@ -16,14 +16,7 @@ import {
   fetchDecks,
   getDecks
 } from "../../redux/actions/DeckActions";
-import {
-  bottomColor,
-  grey,
-  red,
-  topColor,
-  white,
-  whitish
-} from "../../utils/Colors";
+import { bottomColor, red, topColor, white, whitish } from "../../utils/Colors";
 import RightButton from "../swipe/RightButton";
 import EmptyView from "../emptyView/EmptyView";
 
@@ -118,8 +111,6 @@ class Decks extends React.PureComponent<Props, State> {
     );
   }
 }
-
-// TODO - FLAT LIST WITH SWIPE (Able to delete and edit as well)
 
 // region Styles
 

@@ -49,7 +49,18 @@ function persistData(state: State) {
 const Decks = (state: State = decksInitialState, action: DeckAction): State => {
   switch (action.type) {
     case FETCH_DECKS_FULFILLED: {
-      return state.set("decks", fromJS(action.payload));
+      const { payload } = action;
+
+      let parsedContent = null;
+
+      if (payload === undefined) {
+        return decksInitialState;
+      } else {
+        parsedContent = JSON.parse(payload);
+        parsedContent = JSON.parse(parsedContent);
+      }
+
+      return state.set("decks", fromJS(parsedContent));
     }
 
     case GET_DECKS:
