@@ -16,6 +16,10 @@ import {
 } from "../../utils/Colors";
 import timeDifference from "../../utils/DateUtils";
 import styled from "styled-components";
+import {
+  clearLocalNotification,
+  setLocalNotification
+} from "../../utils/NotificationUtils";
 
 type Props = {
   navigation: {
@@ -72,6 +76,10 @@ class CompleteQuiz extends React.Component<Props, {}> {
   _roundNumber = (percent: number) => {
     return percent.toFixed(2);
   };
+
+  componentDidMount() {
+    clearLocalNotification().then(setLocalNotification);
+  }
 
   render() {
     const { quiz, deck } = this.props;

@@ -104,6 +104,8 @@ class Deck extends React.Component<Props, {}> {
     const questions = deck.get("questions");
     const isQuizAvailable = !(questions && questions.size !== 0);
 
+    const numQuestions = questions === undefined ? 0 : questions.size;
+
     return (
       <LinearGradient colors={[topColor, bottomColor]} style={styles.container}>
         <View style={styles.btnContainer}>
@@ -133,7 +135,9 @@ class Deck extends React.Component<Props, {}> {
             onPress={() => this._startQuiz()}
           />
         </View>
-        <FormLabel labelStyle={styles.formLabelInput}>Questions</FormLabel>
+        <FormLabel labelStyle={styles.formLabelInput}>
+          {numQuestions} {numQuestions === 1 ? "Question" : "Questions"}
+        </FormLabel>
         <View style={[styles.itemSeparator, { backgroundColor: purple }]} />;
         {questions && (
           <FlatList

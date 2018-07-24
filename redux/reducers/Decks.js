@@ -6,7 +6,6 @@ import type { DeckAction } from "../actions/DeckActions";
 import {
   ADD_CARD_TO_DECK,
   DELETE_DECK,
-  FETCH_DECKS,
   FETCH_DECKS_FULFILLED,
   GET_DECK,
   GET_DECKS,
